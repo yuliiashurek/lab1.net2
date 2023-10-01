@@ -22,7 +22,7 @@ public class CustomEnumerator<T> : IEnumerator<T>
 
     public bool MoveNext()
     {
-        if (!HasNext())
+        if (_cursor >= _list.Count - 1)
         {
             return false;
         }
@@ -40,10 +40,5 @@ public class CustomEnumerator<T> : IEnumerator<T>
 
     public void Dispose()
     {
-    }
-    
-    private bool HasNext()
-    {
-        return _cursor < _list.Count - 1;
     }
 }
