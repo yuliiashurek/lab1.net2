@@ -40,7 +40,11 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="MyNewList.cs" />
+        <Compile Include="CustomEventHandlers.cs" />
+        <Compile Include="CustomListEvents.cs" />
+        <Compile Include="CustomEnumerator.cs" />
+        <Compile Include="CustomList.cs" />
+        <Compile Include="ListDemo.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
