@@ -5,7 +5,7 @@ namespace lab1;
 
 using System.Collections;
 
-public class MyNewList<T> : IList<T>
+public class CustomList<T> : IList<T>
 {
     public int Count  => _size;
     public bool IsReadOnly => false;
@@ -15,11 +15,11 @@ public class MyNewList<T> : IList<T>
     private int _capacity;
     private const int DefaultCapacity = 4;
     
-    public MyNewList(int capacity = 0)
+    public CustomList(int capacity = 0)
     {
         if (capacity < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(capacity));
+            throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity cannot be a negative value.");
         }
         //==, !, ? можна перевантажити
         //is не можна перевантажити і тому буде завжди використовуватися стандартний компаратор
@@ -32,7 +32,7 @@ public class MyNewList<T> : IList<T>
     //avoids boxing
     public IEnumerator<T> GetEnumerator()
     {
-        return new MyEnumerator<T>(this);
+        return new CustomEnumerator<T>(this);
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -49,22 +49,26 @@ public class MyNewList<T> : IList<T>
         }
         _items[_size] = item;
         _size++;
+        OnItemAdded(item, _size - 1);
     }
     
     private void Resize()
     {
+        var oldCapacity = _capacity;
         var newCapacity = _capacity <= 0 ? DefaultCapacity : _capacity * 2;
         var tempArray = new T [newCapacity];
         //substitution of references
         Array.Copy(_items, tempArray, _size);
         _items = tempArray;
         _capacity = newCapacity;
+        OnListResized(oldCapacity);
     }
 
     public void Clear()
     {
         _items = new T[DefaultCapacity];
         _capacity = _size = 0;
+        OnListCleared();
     }
 
     public bool Contains(T item)
@@ -86,7 +90,7 @@ public class MyNewList<T> : IList<T>
     {
         if (array is null)
         {
-            throw new ArgumentNullException("Array cannot be null.");
+            throw new ArgumentNullException(nameof(array), "Array cannot be null.");
         }
         
         if (arrayIndex < 0 || arrayIndex >= array.Length)
@@ -96,7 +100,7 @@ public class MyNewList<T> : IList<T>
 
         if (array.Length - arrayIndex < _size)
         {
-            throw new ArgumentOutOfRangeException("Number of elements to copy cannot be placed into the destination array.");
+            throw new ArgumentException("Number of elements to copy cannot be placed into the destination array.");
         }
 
         Array.ConstrainedCopy(_items, 0, array, arrayIndex, _size);
@@ -121,7 +125,7 @@ public class MyNewList<T> : IList<T>
     {
         if (index < 0 || index > _size)
         {
-            throw new ArgumentOutOfRangeException(nameof(index));
+            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range. It must be within the current list size.");
         }
         if (_size == _capacity)
         {
@@ -134,16 +138,23 @@ public class MyNewList<T> : IList<T>
         // Insert the new item at the specified index
         _items[index] = item;
         _size++;
+        OnItemAdded(item, index);
+    }
+
+    private void CheckIndex(int index)
+    {
+        if (index < 0 || index >= _size)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range. It must be within the current list size.");
+        }
     }
 
     public void RemoveAt(int index)
     {
-        if (index < 0 || index >= _size)
-        {
-            throw new ArgumentOutOfRangeException(nameof(index));
-        }
+        CheckIndex(index);
         Array.Copy(_items, index + 1, _items, index, _size - index - 1);
         _size--;
+        OnItemRemoved(this[index], index);
     }
 
 
@@ -152,58 +163,50 @@ public class MyNewList<T> : IList<T>
         get => _items[index];
         set
         {
-            if (index >= _size || index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-
+            CheckIndex(index);
             _items[index] = value;
         }
     }
+    
+    
+    public EventHandler<CustomListItemEventArgs<T>>? ItemAdded;
 
-}
+    public EventHandler<CustomListItemEventArgs<T>>? ItemRemoved;
 
-public class MyEnumerator<T> : IEnumerator<T>
-{
-    private readonly IList<T> _list;
-    private int _cursor;
-    private T _current;
+    public EventHandler<CustomListBaseEventArgs>? ListCleared;
 
-    public T Current => _current;
-    object IEnumerator.Current => _current!;
+    public EventHandler<CustomListEventArgs>? ListResized;
 
-    public MyEnumerator(IList<T> list)
+    private void OnItemAdded(T item, int index)
     {
-        _list = list;
-        _cursor = -1; // Initialize cursor to -1 to indicate that it hasn't started iterating yet
-        _current = default!;
-    }
-
-    public bool MoveNext()
-    {
-        if (!HasNext())
+        if (ItemAdded != null)
         {
-            return false;
+            ItemAdded(this, new CustomListItemEventArgs<T>(item, index, ModificationTypes.ItemAdded));
         }
-
-        _cursor++;
-        _current = _list[_cursor];
-        return true;
     }
 
-    private bool HasNext()
+    private void OnItemRemoved(T item, int index)
     {
-        return _cursor < _list.Count - 1;
+        if (ItemRemoved != null)
+        {
+            ItemRemoved(this, new CustomListItemEventArgs<T>(item, index, ModificationTypes.ItemRemoved));
+        }
     }
 
-    public void Reset()
+    private void OnListCleared()
     {
-        _cursor = -1; // Reset cursor to -1 to start from the beginning
-        _current = default!;
+        if (ListCleared != null)
+        {
+            ListCleared(this, new CustomListBaseEventArgs(ModificationTypes.ListCleared));
+        }
     }
 
-    public void Dispose()
+    private void OnListResized(int oldCapacity)
     {
-        return;
+        if (ListResized != null)
+        {
+            ListResized(this, new CustomListEventArgs(oldCapacity, _capacity));
+        }
     }
+
 }
