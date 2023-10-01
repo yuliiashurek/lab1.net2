@@ -3,4 +3,4 @@
 ### Варіант 9
 ---
 #### ЛР 1
-[Звіт](./lab1/Properties/.NET_lab1_Shurek.pdf)
+[Звіт](./lab1/Properties/NET_lab1_Shurek.pdf)
