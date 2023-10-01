@@ -5,17 +5,18 @@ namespace lab1;
 
 public class CustomEnumerator<T> : IEnumerator<T>
 {
+    
+    public T Current => _current;
+    object IEnumerator.Current => _current!;
+    
     private readonly IList<T> _list;
     private int _cursor;
     private T _current;
 
-    public T Current => _current;
-    object IEnumerator.Current => _current!;
-
     public CustomEnumerator(IList<T> list)
     {
         _list = list;
-        _cursor = -1; // Initialize cursor to -1 to indicate that it hasn't started iterating yet
+        _cursor = -1;
         _current = default!;
     }
 
@@ -31,18 +32,18 @@ public class CustomEnumerator<T> : IEnumerator<T>
         return true;
     }
 
-    private bool HasNext()
-    {
-        return _cursor < _list.Count - 1;
-    }
-
     public void Reset()
     {
-        _cursor = -1; // Reset cursor to -1 to start from the beginning
+        _cursor = -1;
         _current = default!;
     }
 
     public void Dispose()
     {
+    }
+    
+    private bool HasNext()
+    {
+        return _cursor < _list.Count - 1;
     }
 }

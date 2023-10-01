@@ -9,27 +9,28 @@ public class CustomList<T> : IList<T>
 {
     public int Count  => _size;
     public bool IsReadOnly => false;
-    
+
+    #region private fields
+
     private int _size;
     private T[] _items;
     private int _capacity;
     private const int DefaultCapacity = 4;
-    
+
+    #endregion
+
+    #region implementation of IList<T>
     public CustomList(int capacity = 0)
     {
         if (capacity < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity cannot be a negative value.");
         }
-        //==, !, ? можна перевантажити
-        //is не можна перевантажити і тому буде завжди використовуватися стандартний компаратор
-        //is лише з константами
         _size = 0;
         _capacity = capacity;
         _items = capacity is 0 ? Array.Empty<T>() : new T[capacity];
     }
     
-    //avoids boxing
     public IEnumerator<T> GetEnumerator()
     {
         return new CustomEnumerator<T>(this);
@@ -42,7 +43,6 @@ public class CustomList<T> : IList<T>
 
     public void Add(T item)
     {
-        //with length will be slower, worse performance
         if (_size >= _capacity)
         {
             Resize();
@@ -50,18 +50,6 @@ public class CustomList<T> : IList<T>
         _items[_size] = item;
         _size++;
         OnItemAdded(item, _size - 1);
-    }
-    
-    private void Resize()
-    {
-        var oldCapacity = _capacity;
-        var newCapacity = _capacity <= 0 ? DefaultCapacity : _capacity * 2;
-        var tempArray = new T [newCapacity];
-        //substitution of references
-        Array.Copy(_items, tempArray, _size);
-        _items = tempArray;
-        _capacity = newCapacity;
-        OnListResized(oldCapacity);
     }
 
     public void Clear()
@@ -76,7 +64,6 @@ public class CustomList<T> : IList<T>
         for (int i = 0; i < _size; i++)
         {
             var element = _items[i];
-            //== needs comparator/comparable, equals doesn't
             if (element?.Equals(item) == true)
             {
                 return true;
@@ -105,8 +92,7 @@ public class CustomList<T> : IList<T>
 
         Array.ConstrainedCopy(_items, 0, array, arrayIndex, _size);
     }
-
-
+    
     public bool Remove(T item)
     {
         var index = Array.IndexOf(_items, item);
@@ -114,7 +100,6 @@ public class CustomList<T> : IList<T>
         RemoveAt(index);
         return isRemoved;
     }
-
 
     public int IndexOf(T item)
     {
@@ -131,22 +116,10 @@ public class CustomList<T> : IList<T>
         {
             Resize();
         }
-
-        // Shift elements to make room for the new item
         Array.Copy(_items, index, _items, index + 1, _size - index);
-
-        // Insert the new item at the specified index
         _items[index] = item;
         _size++;
         OnItemAdded(item, index);
-    }
-
-    private void CheckIndex(int index)
-    {
-        if (index < 0 || index >= _size)
-        {
-            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range. It must be within the current list size.");
-        }
     }
 
     public void RemoveAt(int index)
@@ -156,8 +129,7 @@ public class CustomList<T> : IList<T>
         _size--;
         OnItemRemoved(this[index], index);
     }
-
-
+    
     public T this[int index]
     {
         get => _items[index];
@@ -168,14 +140,17 @@ public class CustomList<T> : IList<T>
         }
     }
     
-    
-    public EventHandler<CustomListItemEventArgs<T>>? ItemAdded;
+    #endregion
 
-    public EventHandler<CustomListItemEventArgs<T>>? ItemRemoved;
+    #region work with events
 
-    public EventHandler<CustomListBaseEventArgs>? ListCleared;
+    public EventHandler<CustomListItemEventArgs<T>> ItemAdded;
 
-    public EventHandler<CustomListEventArgs>? ListResized;
+    public EventHandler<CustomListItemEventArgs<T>> ItemRemoved;
+
+    public EventHandler<CustomListBaseEventArgs> ListCleared;
+
+    public EventHandler<CustomListEventArgs> ListResized;
 
     private void OnItemAdded(T item, int index)
     {
@@ -208,5 +183,26 @@ public class CustomList<T> : IList<T>
             ListResized(this, new CustomListEventArgs(oldCapacity, _capacity));
         }
     }
+    #endregion
 
+    #region private methods
+    private void Resize()
+    {
+        var oldCapacity = _capacity;
+        var newCapacity = _capacity <= 0 ? DefaultCapacity : _capacity * 2;
+        var tempArray = new T [newCapacity];
+        Array.Copy(_items, tempArray, _size);
+        _items = tempArray;
+        _capacity = newCapacity;
+        OnListResized(oldCapacity);
+    }
+    private void CheckIndex(int index)
+    {
+        if (index < 0 || index >= _size)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range. It must be within the current list size.");
+        }
+    }
+    
+    #endregion
 }
