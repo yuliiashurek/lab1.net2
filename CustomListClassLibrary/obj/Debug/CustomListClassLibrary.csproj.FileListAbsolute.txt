@@ -1,0 +1,6 @@
+C:\Users\Yuliia\RiderProjects\Solution1\CustomListClassLibrary\bin\Debug\CustomListClassLibrary.dll
+C:\Users\Yuliia\RiderProjects\Solution1\CustomListClassLibrary\bin\Debug\CustomListClassLibrary.pdb
+C:\Users\Yuliia\RiderProjects\Solution1\CustomListClassLibrary\obj\Debug\CustomListClassLibrary.csproj.AssemblyReference.cache
+C:\Users\Yuliia\RiderProjects\Solution1\CustomListClassLibrary\obj\Debug\CustomListClassLibrary.csproj.CoreCompileInputs.cache
+C:\Users\Yuliia\RiderProjects\Solution1\CustomListClassLibrary\obj\Debug\CustomListClassLibrary.dll
+C:\Users\Yuliia\RiderProjects\Solution1\CustomListClassLibrary\obj\Debug\CustomListClassLibrary.pdb

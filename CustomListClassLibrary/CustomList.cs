@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace lab1;
+namespace CustomListClassLibrary;
 
 using System.Collections;
 
@@ -14,7 +14,7 @@ public class CustomList<T> : IList<T>
 
     private int _size;
     private T[] _items;
-    private int _capacity;
+    internal int _capacity;
     private const int DefaultCapacity = 4;
 
     #endregion
@@ -96,6 +96,10 @@ public class CustomList<T> : IList<T>
     public bool Remove(T item)
     {
         var index = Array.IndexOf(_items, item);
+        if (index == -1)
+        {
+            throw new InvalidOperationException("The item does not exist in the list.");
+        }
         var isRemoved = index != -1;
         RemoveAt(index);
         return isRemoved;

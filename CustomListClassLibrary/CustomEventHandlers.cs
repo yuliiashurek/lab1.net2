@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace lab1;
+namespace CustomListClassLibrary;
 
 public static class CustomEventHandlers
 {

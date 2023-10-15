@@ -40,13 +40,15 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="CustomEventHandlers.cs" />
-        <Compile Include="CustomListEvents.cs" />
-        <Compile Include="CustomEnumerator.cs" />
-        <Compile Include="CustomList.cs" />
         <Compile Include="ListDemo.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\CustomListClassLibrary\CustomListClassLibrary.csproj">
+        <Project>{fee261c1-552a-447f-af04-3eef8994a286}</Project>
+        <Name>CustomListClassLibrary</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace lab1;
+namespace CustomListClassLibrary;
 
 public class CustomEnumerator<T> : IEnumerator<T>
 {
