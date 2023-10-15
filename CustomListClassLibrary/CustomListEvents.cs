@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace lab1;
+namespace CustomListClassLibrary;
 
 public enum ModificationTypes
 {
