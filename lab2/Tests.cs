@@ -8,6 +8,7 @@ namespace lab2
     public class Tests
     {
         #region Constructor
+
         [Fact]
         public void Constructor_WithPositiveCapacity_InitializesCustomList()
         {
@@ -45,6 +46,7 @@ namespace lab2
             // Act & Assert
             Assert.Throws<ArgumentOutOfRangeException>(() => new CustomList<int>(capacity));
         }
+
         #endregion
 
         #region IndexOf
@@ -82,6 +84,7 @@ namespace lab2
         #endregion
 
         #region Add, Insert
+
         [Fact]
         public void Add_ItemToEmptyList_IncreasesSizeAndContainsItem()
         {
@@ -111,7 +114,7 @@ namespace lab2
             Assert.Equal(3, customList.Count);
             Assert.True(customList.Contains(3));
         }
-        
+
         [Fact]
         public void Insert_ValidIndex_InsertsItem()
         {
@@ -138,7 +141,7 @@ namespace lab2
             Assert.Throws<ArgumentOutOfRangeException>(() => customList.Insert(-1, 1));
             Assert.Throws<ArgumentOutOfRangeException>(() => customList.Insert(1, 1));
         }
-        
+
         [Fact]
         public void Insert_WithResize_ResizesAndInsertsItem()
         {
@@ -156,8 +159,9 @@ namespace lab2
         }
 
         #endregion
-        
+
         #region Remove, RemoveAt
+
         [Fact]
         public void Remove_ItemInList_ReturnsTrueAndRemovesItem()
         {
@@ -186,6 +190,7 @@ namespace lab2
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => customList.Remove(3));
         }
+
         [Fact]
         public void RemoveAt_ValidIndex_RemovesItem()
         {
@@ -204,7 +209,7 @@ namespace lab2
         }
 
         [Fact]
-        public void RemoveAt_InvalidIndex_ThrowsArgumentOutOfRangeException()
+        public void RemoveAt_InvalidIndex_ThrowsArgumentOutOfRangeExcepStion()
         {
             // Arrange
             CustomList<int> customList = new CustomList<int>();
@@ -212,6 +217,7 @@ namespace lab2
             // Act & Assert
             Assert.Throws<ArgumentOutOfRangeException>(() => customList.RemoveAt(0));
         }
+
         #endregion
 
         #region CopyTo
@@ -362,7 +368,7 @@ namespace lab2
         }
 
         #endregion
-        
+
         #region Enumerator Methods
 
         [Fact]
@@ -399,7 +405,7 @@ namespace lab2
 
             Assert.Equal(new[] { 1, 2, 3 }, items);
         }
-        
+
         [Fact]
         public void Current_AtStartOfEnumerator_ReturnsDefaultElement()
         {
@@ -430,6 +436,157 @@ namespace lab2
         }
 
         #endregion
+
+        #region trigerring events
+
+        [Fact]
+        public void AddItem_TriggerItemAddedEvent()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            var eventRaised = false;
+            customList.ItemAdded += (sender, args) => eventRaised = true;
+
+            // Act
+            customList.Add(1);
+
+            // Assert
+            Assert.True(eventRaised);
+        }
+
+        [Fact]
+        public void RemoveItem_TriggerItemRemovedEvent()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            customList.Add(1);
+            var eventRaised = false;
+            customList.ItemRemoved += (sender, args) => eventRaised = true;
+
+            // Act
+            customList.Remove(1);
+
+            // Assert
+            Assert.True(eventRaised);
+        }
+
+        [Fact]
+        public void ClearList_TriggerListClearedEvent()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            customList.Add(1);
+            var eventRaised = false;
+            customList.ListCleared += (sender, args) => eventRaised = true;
+
+            // Act
+            customList.Clear();
+
+            // Assert
+            Assert.True(eventRaised);
+        }
+
+        [Fact]
+        public void ResizeList_TriggerListResizedEvent()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            var eventRaised = false;
+            customList.ListResized += (sender, args) => eventRaised = true;
+
+            // Act
+            customList.Add(1);
+            customList.Add(2);
+            customList.Add(3);
+            customList.Add(4);
+            customList.Add(5);
+
+            // Assert
+            Assert.True(eventRaised);
+        }
+
+        #endregion
+
+        #region event handlers
+
+        [Fact]
+        public void ItemAddedEvent_HandlerLogsCorrectly()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            customList.ItemAdded += CustomEventHandlers.PrintListItemEventHandler;
+
+            var consoleOutput = new System.IO.StringWriter();
+            Console.SetOut(consoleOutput);
+
+            // Act
+            customList.Add(1);
+
+            // Assert
+            var expectedOutput = "\t\t\t\t\t\t\t\t\tEvent: ItemAdded Item: 1 Index: 0 Date:";
+            Assert.Contains(expectedOutput, consoleOutput.ToString());
+        }
         
+        [Fact]
+        public void ItemRemovedEvent_HandlerLogsCorrectly()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            customList.ItemRemoved += CustomEventHandlers.PrintListItemEventHandler;
+
+            var consoleOutput = new System.IO.StringWriter();
+            Console.SetOut(consoleOutput);
+
+            customList.Add(1);
+
+            // Act
+            customList.Remove(1);
+
+            // Assert
+            var expectedOutput = "\t\t\t\t\t\t\t\t\tEvent: ItemRemoved Item: 1 Index: 0 Date:";
+            Assert.Contains(expectedOutput, consoleOutput.ToString());
+        }
+
+        [Fact]
+        public void ListClearedEvent_HandlerLogsCorrectly()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            customList.ListCleared += CustomEventHandlers.PrintListEventHandler;
+
+            var consoleOutput = new System.IO.StringWriter();
+            Console.SetOut(consoleOutput);
+            
+            customList.Add(1);
+
+            // Act
+            customList.Clear();
+
+            // Assert
+            var expectedOutput = "\t\t\t\t\t\t\t\t\tEvent: ListCleared Date:";
+            Assert.Contains(expectedOutput, consoleOutput.ToString());
+        }
+
+        [Fact]
+        public void ListResizedEvent_HandlerLogsCorrectly()
+        {
+            // Arrange
+            var customList = new CustomList<int>();
+            customList.ListResized += CustomEventHandlers.PrintListResizedEventHandler;
+
+            var consoleOutput = new System.IO.StringWriter();
+            Console.SetOut(consoleOutput);
+
+            // Act
+            customList.Add(1);
+            customList.Add(2);
+            customList.Add(3);
+
+            // Assert
+            var expectedOutput = "\t\t\t\t\t\t\t\t\tEvent: ListResized Old capacity: 0 New capacity: 4 Date:";
+            Assert.Contains(expectedOutput, consoleOutput.ToString());
+        }
+
+        #endregion
     }
 }
